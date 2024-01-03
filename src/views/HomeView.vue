@@ -46,7 +46,7 @@ function pickRecipe(value: string) {
       :key="prof"
       :class="['prof-picker', prof === activeProfession ? 'prof-picker--active' : '']"
       @click="activeProfession = prof">
-      <img :src="`src/assets/${prof}.jpg`" :alt="prof" class="prof-picker__img"/>
+      <img :src="`./images/${prof}.jpg`" :alt="prof" class="prof-picker__img"/>
     </button>
     
     <n-select
