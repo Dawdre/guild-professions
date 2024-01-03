@@ -14,7 +14,7 @@ const allRecipes = ref<Array<Recipe>>();
 uniqueRecipes.value = await getGuildRecipesUnique();
 allRecipes.value = await getGuildRecipes();
 
-const selectedValue = ref(undefined);
+const selectedValue = ref<string | undefined>(undefined);
 const activeProfession = ref("");
 const filteredRecipes = ref<Array<Recipe>>();
 
@@ -53,11 +53,16 @@ function pickRecipe(value: string) {
       v-if="activeProfession"
       v-model:value="selectedValue"
       filterable
+      clearable
       :options="someOptions"
       @update:value="pickRecipe"/>
     
     <template v-if="selectedValue">
-      <n-card v-for="recipe in filteredRecipes" :key="recipe.recip_id" :title="recipe.char_name" hoverable>
+      <n-card
+        v-for="recipe in filteredRecipes"
+        :key="recipe.recip_id"
+        :title="recipe.char_name.charAt(0).toUpperCase() + recipe.char_name.slice(1)"
+        hoverable>
         <div>{{ recipe.recip_name }}</div>
         <div>{{ recipe.char_realm }}</div>
       </n-card>
