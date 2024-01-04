@@ -31,37 +31,59 @@ const baseProfessions = computed(() => {
   return Array.from(new Set(thing)).sort()
 });
 
+const capitaliseFirstLetter = (word: string) => computed(() => {
+  console.log(word);
+  
+  return `${word.charAt(0).toUpperCase()}${word.slice(1)}`
+})
+
 function pickRecipe(value: string) {
   filteredRecipes.value = allRecipes.value?.filter(recipe => recipe.recip_name === value);
 }
 </script>
 
 <template>
-  <main>
-    <n-h1>Find a guild recipe</n-h1>
-    
-    <n-h2>Pick a profession</n-h2>
-    <button
+  <header class="gp-header">
+    <n-h1 class="gp-title">
+      <span class="gp-title-upper">G</span>UILD <span class="gp-title-upper">P</span>ROFESSIONS
+    </n-h1>
+  </header>
+  <main class="gp-content">
+    <n-h2>Pick a Profession</n-h2>
+
+    <div class="gp-prof-picker">
+      <button
       v-for="prof in baseProfessions"
       :key="prof"
-      :class="['prof-picker', prof === activeProfession ? 'prof-picker--active' : '']"
+      :class="['gp-prof-picker__action', prof === activeProfession ? 'gp-prof-picker__action--active' : '']"
       @click="activeProfession = prof">
-      <img :src="`./images/${prof}.jpg`" :alt="prof" class="prof-picker__img"/>
-    </button>
+        <img :src="`./images/${prof}.jpg`" :alt="prof" class="gp-prof-picker__img"/>
+      </button>
+    </div>
     
-    <n-select
-      v-if="activeProfession"
-      v-model:value="selectedValue"
-      filterable
-      clearable
-      :options="someOptions"
-      @update:value="pickRecipe"/>
+    <div v-if="activeProfession" class="gp-recipe-picker">
+      <n-h2>
+        <label for="recipe-select" class="gp-recipe-picker__label">
+          Find a {{ capitaliseFirstLetter(activeProfession).value }} recipe
+        </label>
+      </n-h2>
+      <n-select
+        v-model:value="selectedValue"
+        id="recipe-select"
+        filterable
+        clearable
+        :options="someOptions"
+        placeholder="Select or search for a recipe"
+        size="large"
+        @update:value="pickRecipe"/>
+    </div>
     
     <template v-if="selectedValue">
       <n-card
         v-for="recipe in filteredRecipes"
         :key="recipe.recip_id"
-        :title="recipe.char_name.charAt(0).toUpperCase() + recipe.char_name.slice(1)"
+        :title="capitaliseFirstLetter(recipe.char_name).value"
+        class="gp-card"
         hoverable>
         <div>{{ recipe.recip_name }}</div>
         <div>{{ recipe.char_realm }}</div>
@@ -71,18 +93,66 @@ function pickRecipe(value: string) {
 </template>
 
 <style lang="scss" scoped>
-.prof-picker {
-  border: none;
-  background: none;
-  cursor: pointer;
-  
-  &--active {
-    border: 3px solid red;
+.gp-content {
+  padding: 1rem;
+
+  display: grid;
+}
+
+.gp-header {
+  display: flex;
+  align-items: end;
+  background-color: #202020;
+  border-bottom: 1px solid #444;
+
+  &:before {
+    content: " ";
+    background-image: url("./images/professions.webp");
+    background-repeat: no-repeat;
+
+    height: 83px;
+    width: 180px;
+    background-position-y: bottom;
   }
-  
+}
+
+.gp-title {
+  margin-bottom: 0;
+
+  &-upper {
+    font-size: 2.5rem;
+  }
+}
+
+.gp-prof-picker {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+
+  &__action {
+    padding-right: 0.5rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+
+    &--active {
+      border: 3px solid red;
+    }
+  }
+
   &__img {
     border-radius: 5px;
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
   }
+}
+
+.gp-recipe-picker {
+  margin-bottom: 1rem;
+  width: 50vw;
+}
+
+.gp-card {
+  width: 50vw;
+  margin-bottom: 1rem;
 }
 </style>
