@@ -2,7 +2,7 @@
   font-family: 'Friz Quadrata Std';
   font-style: italic;
   font-weight: normal;
-  src: local('Friz Quadrata Std Italic'), url('./fonts/friz-quadrata-std-italic-587033b2c95df.woff') format('woff');
+  src: local('Friz Quadrata Std Italic'), url('/fonts/friz-quadrata-std-italic-587033b2c95df.woff') format('woff');
 }
 
 
@@ -10,7 +10,7 @@
   font-family: 'Friz Quadrata Std';
   font-style: normal;
   font-weight: normal;
-  src: local('Friz Quadrata Std Medium'), url('./fonts/friz-quadrata-std-medium-5870338ec7ef8.woff') format('woff');
+  src: local('Friz Quadrata Std Medium'), url('/fonts/friz-quadrata-std-medium-5870338ec7ef8.woff') format('woff');
 }
 
 
@@ -18,7 +18,7 @@
   font-family: 'Friz Quadrata Std';
   font-style: normal;
   font-weight: bold;
-  src: local('Friz Quadrata Std Bold'), url('./fonts/friz-quadrata-std-bold-587034a220f9f.woff') format('woff');
+  src: local('Friz Quadrata Std Bold'), url('/fonts/friz-quadrata-std-bold-587034a220f9f.woff') format('woff');
 }
 
 
@@ -26,7 +26,7 @@
   font-family: 'Friz Quadrata Std';
   font-style: italic;
   font-weight: bold;
-  src: local('Friz Quadrata Std Bold Italic'), url('./fonts/friz-quadrata-std-bold-italic-587033d6d4298.woff') format('woff');
+  src: local('Friz Quadrata Std Bold Italic'), url('/fonts/friz-quadrata-std-bold-italic-587033d6d4298.woff') format('woff');
 }
 
 /* color palette from <https://github.com/vuejs/theme> */

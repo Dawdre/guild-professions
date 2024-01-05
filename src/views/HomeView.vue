@@ -1,18 +1,48 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { NSelect, NH1, NH2, NCard } from "naive-ui";
 import {
+  NSelect,
+  NH1,
+  NH2,
+  NCard,
+  NForm,
+  NFormItem,
+  NInput,
+  NButton,
+  NSpin,
+  type FormInst 
+} from "naive-ui";
+import {
+  startStream,
   getGuildRecipes,
   getGuildRecipesUnique,
+  getGuildCrafters,
+
   type Recipe,
-  type UniqueRecipe
+  type UniqueRecipe,
+  type Crafter,
 } from "@/api/api";
 
 const uniqueRecipes = ref<Array<UniqueRecipe>>();
 const allRecipes = ref<Array<Recipe>>();
+const crafters = ref<Array<Crafter>>();
+const isLoading = ref(false);
 
-uniqueRecipes.value = await getGuildRecipesUnique();
-allRecipes.value = await getGuildRecipes();
+const formRef = ref<FormInst | null>(null);
+const formValue = ref({
+  guildName: "",
+  realm: ""
+})
+const formRules = {
+  realm: {
+    required: true,
+    message: "Select a realm"
+  },
+  guildName: {
+    required: true,
+    message: "Enter a guild name"
+  }
+}
 
 const selectedValue = ref<string | undefined>(undefined);
 const activeProfession = ref("");
@@ -26,19 +56,63 @@ const someOptions = computed(() => {
   })).filter(option => option.prof_name === activeProfession.value);
 });
 
+const realmOptions = computed(() => {
+  return [
+    { label: "Silvermoon", value: "silvermoon"},
+    { label: "Doomhammer", value: "doomhammer"},
+  ]
+})
+
 const baseProfessions = computed(() => {
   const thing = allRecipes.value?.map(recipe => recipe.prof_name);
   return Array.from(new Set(thing)).sort()
 });
 
-const capitaliseFirstLetter = (word: string) => computed(() => {
-  console.log(word);
-  
-  return `${word.charAt(0).toUpperCase()}${word.slice(1)}`
+const findCrafterInfo = (name: string) => computed(() => {
+  return crafters.value?.find(crafter => crafter.char_name === name);
 })
+
+const capitaliseFirstLetter = (word: string) => computed(() => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
 
 function pickRecipe(value: string) {
   filteredRecipes.value = allRecipes.value?.filter(recipe => recipe.recip_name === value);
+}
+
+async function submitForm(event: Event) {
+  event.preventDefault();
+  isLoading.value = true;
+
+  formRef.value?.validate(errors => {
+    !errors ? console.log("valid") : console.log("invalid")
+    return
+  })
+
+  const guildNameFormatted = formValue.value.guildName.replace(" ", "-").toLowerCase();
+
+  const source = await startStream(formValue.value.realm, guildNameFormatted);
+
+  source.addEventListener("message", async () => {
+    const [uniqueRecipesResult, recipesResult, craftersResult] = await Promise.allSettled([
+      getGuildRecipesUnique(formValue.value.realm, guildNameFormatted),
+      getGuildRecipes(formValue.value.realm, guildNameFormatted),
+      getGuildCrafters(formValue.value.realm, guildNameFormatted),
+    ])
+
+    if (uniqueRecipesResult.status === "rejected" || recipesResult.status === "rejected" || craftersResult.status === "rejected") {
+      console.log("error")
+      return
+    }
+
+    if (uniqueRecipesResult.status === "fulfilled" && recipesResult.status === "fulfilled" && craftersResult.status === "fulfilled") {
+      uniqueRecipes.value = uniqueRecipesResult.value;
+      allRecipes.value = recipesResult.value;
+      crafters.value = craftersResult.value;
+    }
+    
+    isLoading.value = false
+
+    source.close();
+  })
 }
 </script>
 
@@ -49,15 +123,39 @@ function pickRecipe(value: string) {
     </n-h1>
   </header>
   <main class="gp-content">
+    <n-spin :show="isLoading" size="large" content-class="test">
+      <template #description>
+        <span style="font-size: 1.5rem;">Fetching your guild's recipes</span>
+      </template>
+
+      <n-form ref="formRef" :model="formValue" :rules="formRules">
+        <n-form-item label="Select a realm" path="realm">
+          <n-select
+            v-model:value="formValue.realm"
+            :options="realmOptions"
+            filterable
+            clearable/>
+        </n-form-item>
+        <n-form-item label="Enter your guild name" path="guildName" :label-props="{ for: 'guild-name' }">
+          <n-input
+            v-model:value="formValue.guildName"
+            placeholder=""
+            :input-props="{ autocomplete: 'on', id: 'guild-name', name: 'guild-name' }"/>
+        </n-form-item>
+        <n-button type="primary" size="large" @click="submitForm">Find my guild</n-button>
+      </n-form>
+    </n-spin>
+    
     <n-h2>Pick a Profession</n-h2>
 
     <div class="gp-prof-picker">
       <button
-      v-for="prof in baseProfessions"
-      :key="prof"
-      :class="['gp-prof-picker__action', prof === activeProfession ? 'gp-prof-picker__action--active' : '']"
-      @click="activeProfession = prof">
+        v-for="prof in baseProfessions"
+        :key="prof"
+        :class="['gp-prof-picker__action', prof === activeProfession ? 'gp-prof-picker__action--active' : '']"
+        @click="activeProfession = prof">
         <img :src="`./images/${prof}.jpg`" :alt="prof" class="gp-prof-picker__img"/>
+        <!-- <img v-if="prof === activeProfession" src="/images/professions-tier-5.png" alt="selected profession"> -->
       </button>
     </div>
     
@@ -82,11 +180,17 @@ function pickRecipe(value: string) {
       <n-card
         v-for="recipe in filteredRecipes"
         :key="recipe.recip_id"
-        :title="capitaliseFirstLetter(recipe.char_name).value"
         class="gp-card"
         hoverable>
+        <template #header>
+          <img :src="findCrafterInfo(recipe.char_name).value?.char_avatar" :alt="recipe.char_name">
+          <span :style="`color: ${findCrafterInfo(recipe.char_name).value?.class_color};`">
+            {{ capitaliseFirstLetter(recipe.char_name).value }}
+          </span>
+        </template>
         <div>{{ recipe.recip_name }}</div>
         <div>{{ recipe.char_realm }}</div>
+        <img :src="findCrafterInfo(recipe.char_name).value?.class_icon" :alt="recipe.char_name">
       </n-card>
     </template>
   </main>
@@ -107,7 +211,7 @@ function pickRecipe(value: string) {
 
   &:before {
     content: " ";
-    background-image: url("./images/professions.webp");
+    background-image: url("/images/professions.webp");
     background-repeat: no-repeat;
 
     height: 83px;
@@ -148,11 +252,11 @@ function pickRecipe(value: string) {
 
 .gp-recipe-picker {
   margin-bottom: 1rem;
-  width: 50vw;
+  width: 75vw;
 }
 
 .gp-card {
-  width: 50vw;
+  width: 75vw;
   margin-bottom: 1rem;
 }
 </style>
