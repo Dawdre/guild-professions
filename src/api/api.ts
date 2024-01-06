@@ -19,6 +19,13 @@ export interface Crafter {
   class_icon: string
 }
 
+export interface Realm {
+  key: { href: string },
+  name: string,
+  id: number,
+  slug: string,
+}
+
 export type UniqueRecipe = Pick<Recipe, "recip_name" | "prof_name">;
 
 async function fetchApi<T>(url: string): Promise<T> {
@@ -37,6 +44,10 @@ export async function getGuildRecipesUnique(realm: string, guildName: string) {
 
 export async function getGuildCrafters(realm: string, guildName: string) {
   return await fetchApi<Array<Crafter>>(`${ENDPOINT_URL}/Guild_Crafters?realm=${realm}&guild=${guildName}`);
+}
+
+export async function getRealmList() {
+  return await fetchApi<Array<Realm>>("https://ashypls.com/endpoints/apis/pogsquadprofs/realm_list/");
 }
 
 export async function getProfessionIcons(profType: string) {
