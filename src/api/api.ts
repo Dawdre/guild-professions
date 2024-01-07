@@ -8,6 +8,7 @@ export interface Recipe {
   prof_name: string
   prof_type: string
   recip_name: string
+  recip_tier_name: string
 }
 
 export interface Crafter {
@@ -17,6 +18,21 @@ export interface Crafter {
   char_avatar: string
   class_color: string
   class_icon: string
+  tier_list: Array<CrafterTierList>
+}
+
+export interface CrafterTierList {
+  tier_name: string,
+  recipe_count: number,
+}
+
+export interface GuildTiersKnown {
+  crafting_tier_name: string,
+}
+
+export interface GuildCrafters {
+  crafters: Array<Crafter>,
+  guild_tiers_known: Array<GuildTiersKnown>,
 }
 
 export interface Realm {
@@ -35,15 +51,15 @@ async function fetchApi<T>(url: string): Promise<T> {
 }
 
 export async function getGuildRecipes(realm: string, guildName: string) {
-  return await fetchApi<Array<Recipe>>(`${ENDPOINT_URL}/Guild_Recipies_All?realm=${realm}&guild=${guildName}`)
+  return await fetchApi<Array<Recipe>>(`${ENDPOINT_URL}/Guild_Recipes_All?realm=${realm}&guild=${guildName}`)
 }
 
 export async function getGuildRecipesUnique(realm: string, guildName: string) {
-  return await fetchApi<Array<UniqueRecipe>>(`${ENDPOINT_URL}/Guild_Recipies_Unique?realm=${realm}&guild=${guildName}`)
+  return await fetchApi<Array<UniqueRecipe>>(`${ENDPOINT_URL}/Guild_Recipes_Unique?realm=${realm}&guild=${guildName}`)
 }
 
 export async function getGuildCrafters(realm: string, guildName: string) {
-  return await fetchApi<Array<Crafter>>(`${ENDPOINT_URL}/Guild_Crafters?realm=${realm}&guild=${guildName}`);
+  return await fetchApi<GuildCrafters>(`${ENDPOINT_URL}/Guild_Crafters?realm=${realm}&guild=${guildName}`);
 }
 
 export async function getRealmList() {

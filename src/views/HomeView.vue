@@ -4,52 +4,37 @@ import {
   NSelect,
   NH1,
   NH2,
-  NCard,
-  NForm,
-  NFormItem,
-  NInput,
-  NButton,
   NSpin,
   NAlert,
-  type FormInst 
+  type FormValidationError,
 } from "naive-ui";
 import {
   startStream,
-  getRealmList,
   getGuildRecipes,
   getGuildRecipesUnique,
   getGuildCrafters,
 
-  type Realm,
   type Recipe,
   type UniqueRecipe,
-  type Crafter,
+type GuildCrafters,
 } from "@/api/api";
+import { useCapitaliser } from "@/composable/useString";
 
-const realms = ref<Array<Realm>>();
-realms.value = await getRealmList();
+import GPForm from "@/components/GPForm.vue";
+import GPCard from "@/components/GPCard.vue";
+
+const { capitaliseFirstLetter } = useCapitaliser();
 
 const uniqueRecipes = ref<Array<UniqueRecipe>>();
 const allRecipes = ref<Array<Recipe>>();
-const crafters = ref<Array<Crafter>>();
+const guildCrafters = ref<GuildCrafters>();
 const isLoading = ref(false);
-const showEventError = ref(false);
+const failEventError = ref("");
 
-const formRef = ref<FormInst | null>(null);
 const formValue = ref({
   guildName: "",
   realm: ""
 })
-const formRules = {
-  realm: {
-    required: true,
-    message: "Select a realm"
-  },
-  guildName: {
-    required: true,
-    message: "Enter a guild name"
-  }
-}
 
 const selectedValue = ref<string | undefined>(undefined);
 const activeProfession = ref("");
@@ -64,23 +49,11 @@ const someOptions = computed(() => {
   })).filter(option => option.prof_name === activeProfession.value);
 });
 
-const realmOptions = computed(() => {
-  return realms.value?.map(realm => ({
-    label: realm.name,
-    value: realm.slug
-  }))
-})
-
 const baseProfessions = computed(() => {
   const thing = allRecipes.value?.map(recipe => recipe.prof_name);
   return Array.from(new Set(thing)).sort()
 });
 
-const findCrafterInfo = (name: string) => computed(() => {
-  return crafters.value?.find(crafter => crafter.char_name === name);
-})
-
-const capitaliseFirstLetter = (word: string) => computed(() => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
 const formatGuildName = computed(() => formValue.value.guildName.replace(" ", "-").toLowerCase());
 
 function pickRecipe(value: string) {
@@ -89,7 +62,7 @@ function pickRecipe(value: string) {
 
 function pickProfession(value: string) {
   activeProfession.value = value;
-  filteredRecipes.value = []
+  filteredRecipes.value = [];
 }
 
 async function fetchAll() {
@@ -107,89 +80,73 @@ async function fetchAll() {
   if (uniqueRecipesResult.status === "fulfilled" && recipesResult.status === "fulfilled" && craftersResult.status === "fulfilled") {
     uniqueRecipes.value = uniqueRecipesResult.value;
     allRecipes.value = recipesResult.value;
-    crafters.value = craftersResult.value;
+    guildCrafters.value = craftersResult.value;
   }
 }
 
-async function submitForm(event: Event) {
-  event.preventDefault();
+async function submitForm(errors: FormValidationError) {
+  if (errors) {
+    return;
+  } else {
+    isLoading.value = true;
+    selectedValue.value = undefined;
+    
+    const source = await startStream(formValue.value.realm, formatGuildName.value);
 
-  formRef.value?.validate(async errors => {
-    if (errors) {
-      return;
-    } else {
-      isLoading.value = true;
-      selectedValue.value = undefined;
-      
-      const source = await startStream(formValue.value.realm, formatGuildName.value);
-
-      source.addEventListener("cacheCheck", async event => {
-        if (event.data) {
-          await fetchAll();
-          source.close();
-
-          isLoading.value = false;
-        }
-      })
-
-      source.addEventListener("progressCheck", event => {
-        const eventData = JSON.parse(event.data);
-        loadingText.value = `Fetching ${eventData.parse_number}/${eventData.parse_total} recipes - ${eventData.message}`;
-      })
-
-      source.addEventListener("fail", () => {
-        showEventError.value = true;
-        isLoading.value = false;
-      })
-
-      source.addEventListener("parseComplete", async () => {
+    source.addEventListener("cacheCheck", async event => {
+      if (event.data) {
         await fetchAll();
-        
-        isLoading.value = false
-        loadingText.value = "Fetching your guild's recipes";
-
         source.close();
-      })
-    }
-  })
+
+        failEventError.value = "";
+        isLoading.value = false;
+      }
+    })
+
+    source.addEventListener("progressCheck", event => {
+      const eventData = JSON.parse(event.data);
+      loadingText.value = `Fetching ${eventData.parse_number}/${eventData.parse_total} recipes - ${eventData.message}`;
+    })
+
+    source.addEventListener("fail", (event) => {
+      failEventError.value = event.data;
+      isLoading.value = false;
+    })
+
+    source.addEventListener("parseComplete", async () => {
+      await fetchAll();
+      
+      failEventError.value = "";
+      isLoading.value = false;
+      loadingText.value = "Fetching your guild's recipes";
+
+      source.close();
+    })
+  }
 }
 </script>
 
 <template>
   <header class="gp-header">
     <n-h1 class="gp-title">
-      <span class="gp-title-upper">G</span>UILD <span class="gp-title-upper">P</span>ROFESSIONS
+      <span class="gp-title-upper">G</span>UILD
+      <span class="gp-title-upper">P</span>ROFESSIONS
     </n-h1>
   </header>
   <main class="gp-content">
-    <n-alert v-if="showEventError" title="There is a problem" type="error" closable>
-      There is no guild with that name on that realm
+    <n-alert v-if="failEventError" title="There is a problem" type="error" closable>
+      {{ failEventError }}
     </n-alert>
+    
     <n-spin :show="isLoading" size="large" content-class="test">
       <template #description>
         <span style="font-size: 1.5rem;">{{ loadingText }}</span>
       </template>
 
-      <n-form ref="formRef" :model="formValue" :rules="formRules" class="gp-form">
-        <n-form-item label="Select a realm" path="realm">
-          <n-select
-            v-model:value="formValue.realm"
-            :options="realmOptions"
-            filterable
-            clearable/>
-        </n-form-item>
-        <n-form-item label="Enter your guild name" path="guildName" :label-props="{ for: 'guild-name' }">
-          <n-input
-            v-model:value="formValue.guildName"
-            placeholder=""
-            :input-props="{ class: 'gp-form__input', autocomplete: 'on', id: 'guild-name', name: 'guild-name' }"/>
-        </n-form-item>
-        <n-button type="primary" size="large" @click="submitForm">Find my guild</n-button>
-      </n-form>
+      <g-p-form v-model="formValue" @submit-form="submitForm"/>
     </n-spin>
     
     <n-h2 v-if="baseProfessions.length > 0">Pick a Profession</n-h2>
-
     <div class="gp-prof-picker">
       <button
         v-for="prof in baseProfessions"
@@ -217,29 +174,13 @@ async function submitForm(event: Event) {
         size="large"
         @update:value="pickRecipe"/>
     </div>
-    
+
     <template v-if="selectedValue">
-      <n-card
+      <g-p-card
         v-for="recipe in filteredRecipes"
         :key="recipe.recip_id"
-        class="gp-card"
-        content-style="padding: 1rem;"
-        hoverable>
-        <div class="gp-card__content">
-          <div class="gp-card__content-img">
-            <img 
-              class="gp-card__header-img"
-              :src="findCrafterInfo(recipe.char_name).value?.char_avatar"
-              :alt="recipe.char_name"/>
-          </div>
-          <div class="gp-card__content-info">
-            <div class="gp-card__content-text" :style="`color: ${findCrafterInfo(recipe.char_name).value?.class_color};`">
-              {{ capitaliseFirstLetter(recipe.char_name).value }}
-            </div>
-            <div>{{ recipe.recip_name }}</div>
-          </div>
-        </div>
-      </n-card>
+        :filtered-recipe="recipe"
+        :guild-crafters="guildCrafters!"/>
     </template>
   </main>
 </template>
@@ -248,11 +189,6 @@ async function submitForm(event: Event) {
 .n-alert {
   margin-bottom: 1rem;
   width: 75vw;
-}
-.n-input__input-el:-webkit-autofill {
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.82);
-  -webkit-box-shadow: 0 0 0px 1000px #282828 inset;
-  transition: background-color 5000s ease-in-out 0s;
 }
 
 .gp-content {
@@ -284,10 +220,6 @@ async function submitForm(event: Event) {
   &-upper {
     font-size: 2.5rem;
   }
-}
-
-.gp-form {
-  width: 75vw;
 }
 
 .gp-prof-picker {
