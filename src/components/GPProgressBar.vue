@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { type EventProgress } from '@/types/types'
+import { type EventProgress } from '@/types/event'
 import { NH3, NProgress } from 'naive-ui'
 
 const props = defineProps<{ eventProgress: EventProgress }>()
