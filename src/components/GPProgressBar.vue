@@ -41,7 +41,6 @@ const percentTotal = computed(() => {
     :height="24"
     processing
   >
-    <span style="font-size: 1rem">{{ eventProgress.loadingText }}</span>
+    <span style="font-size: 1rem">{{ eventProgress.progressText }}</span>
   </n-progress>
 </template>
-@/types/event

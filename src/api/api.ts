@@ -1,5 +1,5 @@
 const ENDPOINT_URL = "https://ashypls.com/endpoints/apis/pogsquadprofs/v3";
-const ENDPOINT_EVENT_URL = "https://ashypls.com/endpoints/loaders/wowprofs.aspx"
+const ENDPOINT_EVENT_URL = "https://ashypls.com/endpoints/loaders/wowprofs.aspx";
 
 export interface Recipe {
   recip_id: number
@@ -35,6 +35,16 @@ export interface GuildCrafters {
   guild_tiers_known: Array<GuildTiersKnown>,
 }
 
+export interface GuildInfo {
+  name: string,
+  id: string,
+  faction: string,
+  achievementPoints: number,
+  memberCount: number,
+  founded: string,
+  factionIcon: string,
+}
+
 export interface Realm {
   key: { href: string },
   name: string,
@@ -64,6 +74,10 @@ export async function getGuildCrafters(realm: string, guildName: string) {
 
 export async function getRealmList() {
   return await fetchApi<Array<Realm>>("https://ashypls.com/endpoints/apis/pogsquadprofs/realm_list/");
+}
+
+export async function getGuildInfo(realm: string, guildName: string) {
+  return await fetchApi<GuildInfo>(`${ENDPOINT_URL}/Guild_Details?realm=${realm}&guild=${guildName}`);
 }
 
 export async function getProfessionIcons(profType: string) {

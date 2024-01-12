@@ -65,8 +65,4 @@ async function submit() {
   </n-form>
 </template>
 
-<style lang="scss" scoped>
-.gp-form {
-  // width: 75vw;
-}
-</style>
+<style lang="scss" scoped></style>

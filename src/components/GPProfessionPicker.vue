@@ -22,7 +22,7 @@ function updateActiveProfession(prof: string) {
       ]"
       @click="updateActiveProfession(prof)"
     >
-      <img :src="`./images/${prof}.jpg`" :alt="prof" class="gp-prof-picker__img" />
+      <img :src="`/images/${prof}.jpg`" :alt="prof" class="gp-prof-picker__img" />
     </button>
   </div>
 </template>

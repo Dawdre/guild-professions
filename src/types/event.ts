@@ -4,9 +4,17 @@ export interface EventData {
   message: string
 }
 
+export interface Found {
+  found: boolean
+  message: string
+}
+
 export interface EventProgress {
   characterEventData: EventData
-  parseEventData: EventData,
+  parseEventData: EventData
+  foundCheck: Found
+  cacheCheck: string
   statusText: string
-  loadingText: string
+  progressText: string
+  isLoading: boolean
 }
