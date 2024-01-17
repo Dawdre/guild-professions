@@ -128,20 +128,14 @@ parseCompleteHandler()
         </div>
         ({{ sentenceCase(realm.replace('-', ' ')).value }}) - {{ guildInfo.memberCount }} crafters
       </n-h2>
-      <template v-if="eventProgress.isLoading && eventProgress.cacheCheck === ''">
-        <n-skeleton
-          v-for="n in 3"
-          :key="n"
-          :sharp="false"
-          size="large"
-          style="margin-bottom: 1rem"
-        />
-      </template>
-      <n-skeleton
-        v-if="eventProgress.isLoading && eventProgress.cacheCheck !== ''"
-        :sharp="false"
-        size="large"
-      />
+
+      <div v-if="eventProgress.isLoading && eventProgress.cacheCheck !== ''" class="gp-skeleton">
+        <n-skeleton text style="width: 20%; margin-bottom: 1rem" />
+        <div class="gp-skeleton__actions">
+          <n-skeleton v-for="n in 13" :key="n" :sharp="false" :height="56" :width="56" />
+        </div>
+      </div>
+
       <template v-else>
         <g-p-profession-picker
           v-if="baseProfessions.length > 0"
@@ -189,6 +183,7 @@ parseCompleteHandler()
 <style lang="scss" scoped>
 .gp-guild-info {
   display: flex;
+  flex-flow: wrap;
   gap: 0.5rem;
 }
 .gp-back-link {
@@ -223,14 +218,23 @@ parseCompleteHandler()
 
 .gp-title {
   margin-bottom: 0;
+  font-size: 1.2rem;
 
   a {
     text-decoration: none;
     color: var(--n-text-color);
   }
 
+  @media screen and (min-width: 640px) {
+    font-size: 1.7rem;
+  }
+
   &-upper {
-    font-size: 2.5rem;
+    font-size: 1.7rem;
+
+    @media screen and (min-width: 640px) {
+      font-size: 2rem;
+    }
   }
 }
 
@@ -245,6 +249,14 @@ parseCompleteHandler()
 
   &--horde {
     color: #c41f3b;
+  }
+}
+
+.gp-skeleton {
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 }
 </style>

@@ -59,10 +59,20 @@ async function submit() {
       />
     </n-form-item>
 
-    <n-button type="primary" size="large" @click="submit" :disabled="isDisabled">
+    <n-button class="gp-form__action" type="primary" size="large" @click="submit" :disabled="isDisabled">
       Find my guild
     </n-button>
   </n-form>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.gp-form {
+  &__action {
+    width: 100%;
+    
+    @media screen and (min-width: 640px) {
+      width: initial;
+    }
+  }
+}
+</style>

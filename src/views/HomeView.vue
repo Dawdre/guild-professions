@@ -98,13 +98,26 @@ async function submitForm(errors: FormValidationError) {
 
 .gp-title {
   margin-bottom: 0;
+  font-size: 1.2rem;
+
+  @media screen and (min-width: 640px) {
+    font-size: 1.7rem;
+  }
 
   &-upper {
-    font-size: 2.5rem;
+    font-size: 1.7rem;
+
+    @media screen and (min-width: 640px) {
+      font-size: 2rem;
+    }
   }
 }
 
 .gp-card {
   margin-bottom: 1rem;
+
+  @media screen and (min-width: 640px) {
+    width: 75vw;
+  }
 }
 </style>

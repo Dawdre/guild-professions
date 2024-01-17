@@ -1,5 +1,5 @@
 const ENDPOINT_URL = "https://ashypls.com/endpoints/apis/pogsquadprofs/v3";
-const ENDPOINT_EVENT_URL = "https://ashypls.com/endpoints/loaders/wowprofs.aspx";
+const HOST_ENDPOINT_URL = "https://ashypls-001-site1.ftempurl.com/endpoints/guildprofs";
 
 export interface Recipe {
   recip_id: number
@@ -61,29 +61,29 @@ async function fetchApi<T>(url: string): Promise<T> {
 }
 
 export async function getGuildRecipes(realm: string, guildName: string) {
-  return await fetchApi<Array<Recipe>>(`${ENDPOINT_URL}/Guild_Recipes_All?realm=${realm}&guild=${guildName}`)
+  return await fetchApi<Array<Recipe>>(`${HOST_ENDPOINT_URL}/V3/Guild_Recipes_All?realm=${realm}&guild=${guildName}`)
 }
 
 export async function getGuildRecipesUnique(realm: string, guildName: string) {
-  return await fetchApi<Array<UniqueRecipe>>(`${ENDPOINT_URL}/Guild_Recipes_Unique?realm=${realm}&guild=${guildName}`)
+  return await fetchApi<Array<UniqueRecipe>>(`${HOST_ENDPOINT_URL}/V3/Guild_Recipes_Unique?realm=${realm}&guild=${guildName}`)
 }
 
 export async function getGuildCrafters(realm: string, guildName: string) {
-  return await fetchApi<GuildCrafters>(`${ENDPOINT_URL}/Guild_Crafters?realm=${realm}&guild=${guildName}`);
+  return await fetchApi<GuildCrafters>(`${HOST_ENDPOINT_URL}/V3/Guild_Crafters?realm=${realm}&guild=${guildName}`);
 }
 
 export async function getRealmList() {
-  return await fetchApi<Array<Realm>>("https://ashypls.com/endpoints/apis/pogsquadprofs/realm_list/");
+  return await fetchApi<Array<Realm>>(`${HOST_ENDPOINT_URL}/realm_list/`);
 }
 
 export async function getGuildInfo(realm: string, guildName: string) {
-  return await fetchApi<GuildInfo>(`${ENDPOINT_URL}/Guild_Details?realm=${realm}&guild=${guildName}`);
+  return await fetchApi<GuildInfo>(`${HOST_ENDPOINT_URL}/V3/Guild_Details?realm=${realm}&guild=${guildName}`);
 }
 
 export async function getProfessionIcons(profType: string) {
   return await fetchApi(`https://ashypls.com/wowzers/img/prof_icons/${profType}.jpg`)
 }
 
-export async function startStream(realm: string, guildName: string) {
-  return new EventSource(`${ENDPOINT_EVENT_URL}?guildname=${guildName}&realm=${realm}`)
+export async function getDawdRealmList() {
+  return await fetchApi<Array<Realm>>("http://localhost:8000/dawd/realms")
 }

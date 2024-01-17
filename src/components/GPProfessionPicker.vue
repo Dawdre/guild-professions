@@ -11,30 +11,38 @@ function updateActiveProfession(prof: string) {
 </script>
 
 <template>
-  <n-h3>Pick a Profession</n-h3>
   <div class="gp-prof-picker">
-    <button
-      v-for="prof in baseProfessions"
-      :key="prof"
-      :class="[
-        'gp-prof-picker__action',
-        prof === activeProfession ? 'gp-prof-picker__action--active' : ''
-      ]"
-      @click="updateActiveProfession(prof)"
-    >
-      <img :src="`/images/${prof}.jpg`" :alt="prof" class="gp-prof-picker__img" />
-    </button>
+    <n-h3 class="gp-prof-picker__title">Pick a Profession</n-h3>
+    <div class="gp-prof-picker__content">
+      <button
+        v-for="prof in baseProfessions"
+        :key="prof"
+        :class="[
+          'gp-prof-picker__action',
+          prof === activeProfession ? 'gp-prof-picker__action--active' : ''
+        ]"
+        @click="updateActiveProfession(prof)"
+      >
+        <img :src="`/images/${prof}.jpg`" :alt="prof" class="gp-prof-picker__img" />
+      </button>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .gp-prof-picker {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
+  &__content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__title {
+    margin-bottom: 0.5rem;
+  }
 
   &__action {
-    padding-right: 0.5rem;
+    padding: 0;
     border: none;
     background: none;
     cursor: pointer;
