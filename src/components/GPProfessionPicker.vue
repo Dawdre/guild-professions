@@ -23,7 +23,14 @@ function updateActiveProfession(prof: string) {
         ]"
         @click="updateActiveProfession(prof)"
       >
-        <img :src="`/images/${prof}.jpg`" :alt="prof" class="gp-prof-picker__img" />
+        <img
+          :src="`/images/${prof}.jpg`"
+          :alt="prof"
+          :class="[
+            'gp-prof-picker__img',
+            activeProfession !== prof ? 'gp-prof-picker__img--inactive' : ''
+          ]"
+        />
       </button>
     </div>
   </div>
@@ -46,10 +53,6 @@ function updateActiveProfession(prof: string) {
     border: none;
     background: none;
     cursor: pointer;
-
-    &--active {
-      border: 3px solid red;
-    }
   }
 
   &__img {
@@ -58,6 +61,14 @@ function updateActiveProfession(prof: string) {
       rgba(0, 0, 0, 0.4) 0px 2px 4px,
       rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
       rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+
+    &--inactive {
+      opacity: 0.25;
+    }
+
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 </style>

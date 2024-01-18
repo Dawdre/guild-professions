@@ -24,19 +24,20 @@ const findCrafterTier = computed(() => {
 <template>
   <n-card class="gp-recipe" content-style="padding: 1rem;" hoverable>
     <div class="gp-recipe__content">
-      <div class="gp-recipe__content-img">
-        <img
-          class="gp-recipe__header-img"
-          :src="findCrafterInfo?.char_avatar"
-          :alt="props.filteredRecipe.char_name"
-        />
-      </div>
       <div class="gp-recipe__content-info">
-        <div class="gp-recipe__content-text" :style="`color: ${findCrafterInfo?.class_color};`">
-          {{ capitaliseFirstLetter(props.filteredRecipe.char_name).value }}
+        <div class="gp-recipe__content-title">
+          <span :style="`color: ${findCrafterInfo?.class_color};`">
+            {{ capitaliseFirstLetter(props.filteredRecipe.char_name).value }}
+          </span>
+          <div class="gp-recipe__content-caption">
+            Total known recipes {{ findCrafterInfo?.total_known_recipes }}
+          </div>
         </div>
         <div>{{ props.filteredRecipe.recip_name }}</div>
         <div>{{ findCrafterTier }}</div>
+      </div>
+      <div class="gp-recipe__content-img">
+        <img :src="findCrafterInfo?.char_avatar" :alt="props.filteredRecipe.char_name" />
       </div>
     </div>
   </n-card>
@@ -46,9 +47,20 @@ const findCrafterTier = computed(() => {
 .gp-recipe {
   margin-bottom: 1rem;
 
+  @media screen and (min-width: 640px) {
+    width: 75vw;
+  }
+
   &__content {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: space-between;
+
+    &-caption {
+      font-size: 1rem;
+      color: #7a7a7a;
+      margin-top: -0.4rem;
+    }
   }
 
   &__content-img {

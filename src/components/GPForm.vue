@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { NSelect, NForm, NFormItem, NInput, NButton, type FormInst } from 'naive-ui'
-import { getRealmList, type Realm } from '@/api/api'
+import { NSelect, NForm, NFormItem, NInput, NButton, NSkeleton, type FormInst } from 'naive-ui'
+import { getRealmList } from '@/api/api'
+import { useAsyncState } from '@vueuse/core'
 
 const emit = defineEmits(['submitForm', 'update:modelValue'])
 const props = defineProps<{
@@ -26,11 +27,10 @@ const formRules = {
   }
 }
 
-const realms = ref<Array<Realm>>()
-realms.value = await getRealmList()
+const { state, isLoading } = useAsyncState(getRealmList, [])
 
 const realmOptions = computed(() => {
-  return realms.value?.map((realm) => ({
+  return state.value?.map((realm) => ({
     label: realm.name,
     value: realm.slug
   }))
@@ -46,30 +46,44 @@ async function submit() {
 </script>
 
 <template>
-  <n-form ref="formRef" :model="inputValue" :rules="formRules" class="gp-form">
-    <n-form-item label="Select a realm" path="realm">
-      <n-select v-model:value="inputValue.realm" :options="realmOptions" filterable clearable />
-    </n-form-item>
+  <div>
+    <template v-if="isLoading">
+      <n-skeleton text style="width: 20%" />
+      <n-skeleton :sharp="false" :height="40" style="margin-bottom: 1rem" />
+      <n-skeleton text style="width: 20%" />
+      <n-skeleton :sharp="false" :height="40" />
+    </template>
+    <n-form v-else ref="formRef" :model="inputValue" :rules="formRules" class="gp-form">
+      <n-form-item label="Select a realm" path="realm">
+        <n-select v-model:value="inputValue.realm" :options="realmOptions" filterable clearable />
+      </n-form-item>
 
-    <n-form-item label="Enter your guild name" path="guildName">
-      <n-input
-        v-model:value="inputValue.guildName"
-        placeholder=""
-        :input-props="{ autocomplete: 'on' }"
-      />
-    </n-form-item>
+      <n-form-item label="Enter your guild name" path="guildName">
+        <n-input
+          v-model:value="inputValue.guildName"
+          placeholder=""
+          :input-props="{ autocomplete: 'on' }"
+        />
+      </n-form-item>
 
-    <n-button class="gp-form__action" type="primary" size="large" @click="submit" :disabled="isDisabled">
-      Find my guild
-    </n-button>
-  </n-form>
+      <n-button
+        class="gp-form__action"
+        type="primary"
+        size="large"
+        @click="submit"
+        :disabled="isDisabled"
+      >
+        Find my guild
+      </n-button>
+    </n-form>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .gp-form {
   &__action {
     width: 100%;
-    
+
     @media screen and (min-width: 640px) {
       width: initial;
     }

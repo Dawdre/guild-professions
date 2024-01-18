@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { ref } from 'vue'
 import { type EventProgress, type EventData } from '@/types/event'
 import { useRouter } from 'vue-router'
 import { type RouteLocationRaw } from 'vue-router'
@@ -45,11 +45,50 @@ export function useEventSource(options?: { fetch: OptionalFetch }) {
   }
 
   function startStream(urlParams: URLSearchParams) {
-    const es = new EventSource(`${ENDPOINT_EVENT_URL}?${urlParams.toString()}`); 
+    eventSource.value = new EventSource(`${ENDPOINT_EVENT_URL}?${urlParams.toString()}`); 
 
-    eventSource.value = es
-
-    return es;
+    if (eventSource.value) {
+      eventSource.value.addEventListener('cacheCheck', async (event) => {
+        if (event.data) {
+          eventProgress.value.cacheCheck = event.data
+          close()
+  
+          try {
+            eventProgress.value.isLoading = true
+            await fetch()
+          } finally {
+            eventProgress.value.isLoading = false
+          }
+        } else {
+          eventProgress.value.isLoading = true
+        }
+      })
+  
+      eventSource.value.addEventListener('statusCheck', (event) => (eventProgress.value.statusText = event.data))
+  
+      eventSource.value.addEventListener('progressCheck', (event) => {
+        const eventData: EventData = JSON.parse(event.data)
+  
+        eventProgress.value.parseEventData = eventData
+        eventProgress.value.progressText = `${eventData.parse_number}/${eventData.parse_total} recipes`
+      })
+  
+      eventSource.value.addEventListener('characterCheck', (event) => {
+        const eventData: EventData = JSON.parse(event.data)
+  
+        eventProgress.value.characterEventData = eventData
+        eventProgress.value.progressText = `${eventData.parse_number}/${eventData.parse_total} characters`
+      })
+  
+      eventSource.value.addEventListener('parseComplete', async () => {
+        await fetch()
+  
+        eventProgress.value.isLoading = false
+        eventProgress.value.progressText = ''
+  
+        close()
+      })
+    }
   }
 
   function foundCheckHandler(routeTo: RouteLocationRaw) {
@@ -69,77 +108,14 @@ export function useEventSource(options?: { fetch: OptionalFetch }) {
     }
   }
 
-  function cacheCheckHandler() {
-    if (eventSource.value) {
-      eventSource.value.addEventListener('cacheCheck', async (event) => {
-        if (event.data) {
-          eventProgress.value.cacheCheck = event.data
-          close()
-
-          try {
-            eventProgress.value.isLoading = true
-            await fetch()
-          } finally {
-           eventProgress.value.isLoading = false
-          }
-        } else {
-          eventProgress.value.isLoading = true
-        }
-      })
-    }
-  }
-
-  function statusCheckHandler() {
-    if (eventSource.value) {
-      eventSource.value.addEventListener('statusCheck', (event) => (eventProgress.value.statusText = event.data))
-    }
-  }
-
-  function progressCheckHandler() {
-    if (eventSource.value) {
-      eventSource.value.addEventListener('progressCheck', (event) => {
-        const eventData: EventData = JSON.parse(event.data)
-
-        eventProgress.value.parseEventData = eventData
-        eventProgress.value.progressText = `${eventData.parse_number}/${eventData.parse_total} recipes`
-      })
-    }
-  }
-
-  function characterCheckHandler() {
-    if (eventSource.value) {
-      eventSource.value.addEventListener('characterCheck', (event) => {
-        const eventData: EventData = JSON.parse(event.data)
-
-        eventProgress.value.characterEventData = eventData
-        eventProgress.value.progressText = `${eventData.parse_number}/${eventData.parse_total} characters`
-      })
-    }
-  }
-
-  function parseCompleteHandler() {
-    if (eventSource.value) {
-      eventSource.value.addEventListener('parseComplete', async () => {
-        await fetch()
-
-        eventProgress.value.isLoading = false
-        eventProgress.value.progressText = ''
-
-        close()
-      })
-    }
-  }
+  
+  
 
   return {
     eventSource,
     eventProgress,
 
     startStream,
-    cacheCheckHandler,
-    foundCheckHandler,
-    statusCheckHandler,
-    progressCheckHandler,
-    characterCheckHandler,
-    parseCompleteHandler,
+    foundCheckHandler
   } 
 }

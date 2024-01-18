@@ -80,25 +80,10 @@ async function fetch() {
   }
 }
 
-const {
-  startStream,
-  eventProgress,
-
-  cacheCheckHandler,
-  statusCheckHandler,
-  progressCheckHandler,
-  characterCheckHandler,
-  parseCompleteHandler
-} = useEventSource({ fetch })
+const { startStream, eventProgress } = useEventSource({ fetch })
 
 const searchParams = new URLSearchParams({ guildname: guildName, realm })
 startStream(searchParams)
-
-cacheCheckHandler()
-statusCheckHandler()
-progressCheckHandler()
-characterCheckHandler()
-parseCompleteHandler()
 </script>
 
 <template>
@@ -192,6 +177,10 @@ parseCompleteHandler()
 }
 .gp-card {
   margin-bottom: 1rem;
+
+  @media screen and (min-width: 640px) {
+    width: 75vw;
+  }
 }
 .gp-content {
   padding: 1rem;

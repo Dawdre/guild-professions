@@ -15,9 +15,12 @@ export interface Crafter {
   char_name: string
   char_realm: string
   char_class: string
+  char_race: string
+  char_gender: string
   char_avatar: string
   class_color: string
   class_icon: string
+  total_known_recipes: number
   tier_list: Array<CrafterTierList>
 }
 
