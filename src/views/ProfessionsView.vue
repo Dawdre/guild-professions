@@ -53,7 +53,16 @@ const baseProfessions = computed(() => {
   return Array.from(new Set(profs)).sort()
 })
 
-const { state, execute } = useAsyncState(getRecipeDetails, {}, { immediate: false })
+const { state, execute } = useAsyncState(
+  getRecipeDetails,
+  {
+    id: 0,
+    name: 'string',
+    iconURL: '',
+    reagents: []
+  },
+  { immediate: false }
+)
 
 async function pickRecipe(value: string) {
   filteredRecipes.value = allRecipes.value
