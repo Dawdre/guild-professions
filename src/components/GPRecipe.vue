@@ -29,12 +29,17 @@ const findCrafterTier = computed(() => {
           <span :style="`color: ${findCrafterInfo?.class_color};`">
             {{ capitaliseFirstLetter(props.filteredRecipe.char_name).value }}
           </span>
-          <div class="gp-recipe__content-caption">
-            Total known recipes {{ findCrafterInfo?.total_known_recipes }}
+        </div>
+        <div class="gp-recipe__data-items">
+          <div class="gp-recipe__data-item">
+            <dt class="gp-recipe__data-item-title">{{ findCrafterTier }}</dt>
+            <dd class="gp-recipe__data-item-value">{{ props.filteredRecipe.recip_name }}</dd>
+          </div>
+          <div class="gp-recipe__data-item">
+            <dt class="gp-recipe__data-item-title">Total recipes known</dt>
+            <dd class="gp-recipe__data-item-value">{{ findCrafterInfo?.total_known_recipes }}</dd>
           </div>
         </div>
-        <div>{{ props.filteredRecipe.recip_name }}</div>
-        <div>{{ findCrafterTier }}</div>
       </div>
       <div class="gp-recipe__content-img">
         <img :src="findCrafterInfo?.char_avatar" :alt="props.filteredRecipe.char_name" />
@@ -56,10 +61,28 @@ const findCrafterTier = computed(() => {
     align-items: center;
     justify-content: space-between;
 
-    &-caption {
+    &-title {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  &__data-items {
+    display: flex;
+    flex-flow: wrap;
+    gap: 1.5rem;
+  }
+
+  &__data-item {
+    display: flex;
+    flex-flow: column;
+
+    &-title {
       font-size: 1rem;
       color: #7a7a7a;
-      margin-top: -0.4rem;
+    }
+
+    &-value {
+      margin-top: -0.2rem;
     }
   }
 

@@ -80,7 +80,7 @@ async function fetch() {
   }
 }
 
-const { startStream, eventProgress } = useEventSource({ fetch })
+const { startStream, eventProgress, closeEventSource } = useEventSource({ fetch })
 
 const searchParams = new URLSearchParams({ guildname: guildName, realm })
 startStream(searchParams)
@@ -95,14 +95,19 @@ startStream(searchParams)
     </n-h1>
   </header>
   <main class="gp-content">
-    <router-link :to="{ name: 'home' }">
+    <router-link :to="{ name: 'home' }" @click="closeEventSource">
       <n-button quaternary type="default" class="gp-back-link">
         <span style="transform: rotate(-90deg); margin-right: 0.2rem">▲</span> Select another Guild
       </n-button>
     </router-link>
     <n-card class="gp-card">
       <n-h2 v-if="guildInfo" class="gp-guild-info">
-        <img :src="guildInfo.factionIcon" alt="faction" class="gp-faction__icon" />
+        <img
+          v-if="guildInfo.factionIcon"
+          :src="guildInfo.factionIcon"
+          alt="faction"
+          class="gp-faction__icon"
+        />
         <div
           :class="[
             'gp-faction',

@@ -3,7 +3,7 @@ import { type EventProgress, type EventData } from '@/types/event'
 import { useRouter } from 'vue-router'
 import { type RouteLocationRaw } from 'vue-router'
 
-const ENDPOINT_EVENT_URL = "https://ashypls.com/endpoints/loaders/wowprofs.aspx";
+const ENDPOINT_EVENT_URL = "https://ashypls-001-site1.ftempurl.com/endpoints/guildprofs/loader";
 
 type OptionalFetch = () => Promise<void> | undefined;
 
@@ -116,6 +116,7 @@ export function useEventSource(options?: { fetch: OptionalFetch }) {
     eventProgress,
 
     startStream,
-    foundCheckHandler
+    foundCheckHandler,
+    closeEventSource: close,
   } 
 }
