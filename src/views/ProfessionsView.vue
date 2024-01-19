@@ -11,13 +11,16 @@ import {
   type Recipe,
   type UniqueRecipe,
   type GuildCrafters,
-  type GuildInfo
+  type GuildInfo,
+  getRecipeDetails,
+  type RecipeDetails
 } from '@/api/api'
 import { useEventSource } from '@/composable/useEventSource'
 import { useStringUtils } from '@/composable/useString'
 import GPRecipe from '@/components/GPRecipe.vue'
 import GPProgressBar from '@/components/GPProgressBar.vue'
 import GPProfessionPicker from '@/components/GPProfessionPicker.vue'
+import { useAsyncState } from '@vueuse/core'
 
 const { capitaliseFirstLetter, sentenceCase } = useStringUtils()
 
@@ -44,13 +47,26 @@ const recipeOptions = computed(() => {
     }))
     .filter((option) => option.prof_name === activeProfession.value)
 })
+
 const baseProfessions = computed(() => {
   const profs = allRecipes.value?.map((recipe) => recipe.prof_name)
   return Array.from(new Set(profs)).sort()
 })
 
-function pickRecipe(value: string) {
-  filteredRecipes.value = allRecipes.value?.filter((recipe) => recipe.recip_name === value)
+const { state, execute } = useAsyncState(getRecipeDetails, {}, { immediate: false })
+
+async function pickRecipe(value: string) {
+  filteredRecipes.value = allRecipes.value
+    ?.filter((recipe) => recipe.recip_name === value)
+    .sort((a, b) => {
+      return a.char_guild_rank - b.char_guild_rank
+    })
+
+  const id = filteredRecipes.value?.find((recipe) => recipe.recip_name === value)?.recip_id
+
+  if (id) {
+    execute(0, id)
+  }
 }
 
 async function fetch() {
@@ -165,6 +181,7 @@ startStream(searchParams)
         :key="recipe.recip_id"
         :filtered-recipe="recipe"
         :guild-crafters="guildCrafters!"
+        :recipe-details="state"
       />
     </template>
   </main>

@@ -5,10 +5,24 @@ export interface Recipe {
   recip_id: number
   char_name: string
   char_realm: string
+  char_guild_rank: number
   prof_name: string
   prof_type: string
   recip_name: string
   recip_tier_name: string
+}
+
+export interface RecipeDetails {
+  id: number
+  name: string
+  iconURL: string
+  reagents: Array<Reagent>
+}
+
+export interface Reagent {
+  name: string
+  count: number
+  isCraftingModifier: boolean
 }
 
 export interface Crafter {
@@ -18,6 +32,7 @@ export interface Crafter {
   char_race: string
   char_gender: string
   char_avatar: string
+  char_guild_rank: number
   class_color: string
   class_icon: string
   total_known_recipes: number
@@ -81,6 +96,10 @@ export async function getRealmList() {
 
 export async function getGuildInfo(realm: string, guildName: string) {
   return await fetchApi<GuildInfo>(`${HOST_ENDPOINT_URL}/V3/Guild_Details?realm=${realm}&guild=${guildName}`);
+}
+
+export async function getRecipeDetails(recipeId: number) {
+  return await fetchApi<RecipeDetails>(`${ENDPOINT_URL}/Recipe_Details?recipe_id=${recipeId}`);
 }
 
 export async function getProfessionIcons(profType: string) {
