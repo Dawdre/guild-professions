@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { NSelect, NH1, NH2, NCard, NButton, NSkeleton } from 'naive-ui'
+import { NSelect, NH1, NH2, NH3, NCard, NButton, NSkeleton } from 'naive-ui'
 
 import {
   getGuildRecipes,
@@ -124,24 +124,29 @@ startStream(searchParams)
         <span style="transform: rotate(-90deg); margin-right: 0.2rem">▲</span> Select another Guild
       </n-button>
     </router-link>
-    <n-card class="gp-card">
-      <n-h2 v-if="guildInfo" class="gp-guild-info">
+    <n-card class="gp-card" size="small">
+      <div class="gp-guild-info" v-if="guildInfo">
         <img
           v-if="guildInfo.factionIcon"
           :src="guildInfo.factionIcon"
           alt="faction"
           class="gp-faction__icon"
         />
-        <div
-          :class="[
-            'gp-faction',
-            guildInfo.faction === 'Alliance' ? 'gp-faction--alliance' : 'gp-faction--horde'
-          ]"
-        >
-          {{ sentenceCase(guildInfo.name).value }}
+        <div class="gp-guild-info__header">
+          <n-h2 class="gp-guild-info__title">
+            <span
+              :class="[
+                'gp-faction',
+                guildInfo.faction === 'Alliance' ? 'gp-faction--alliance' : 'gp-faction--horde'
+              ]"
+            >
+              {{ sentenceCase(guildInfo.name).value }}
+            </span>
+            ({{ sentenceCase(realm.replace('-', ' ')).value }}) -
+            {{ guildInfo.memberCount }} crafters
+          </n-h2>
         </div>
-        ({{ sentenceCase(realm.replace('-', ' ')).value }}) - {{ guildInfo.memberCount }} crafters
-      </n-h2>
+      </div>
 
       <div v-if="eventProgress.isLoading && eventProgress.cacheCheck !== ''" class="gp-skeleton">
         <n-skeleton text style="width: 20%; margin-bottom: 1rem" />
@@ -163,13 +168,13 @@ startStream(searchParams)
       />
     </n-card>
 
-    <n-card v-if="activeProfession" class="gp-card">
+    <n-card v-if="activeProfession" class="gp-card" size="small">
       <div class="gp-recipe-picker">
-        <n-h2>
+        <n-h3 class="gp-recipe-picker__title">
           <label for="recipe-select" class="gp-recipe-picker__label">
             Find a {{ capitaliseFirstLetter(activeProfession).value }} recipe
           </label>
-        </n-h2>
+        </n-h3>
         <n-select
           v-model:value="selectedValue"
           id="recipe-select"
@@ -199,11 +204,48 @@ startStream(searchParams)
 .gp-guild-info {
   display: flex;
   flex-flow: wrap;
-  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  @media screen and (min-width: 720px) {
+    margin-bottom: 1rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+
+    @media screen and (min-width: 720px) {
+      flex-flow: column;
+    }
+  }
+
+  &__title,
+  &__subtitle {
+    margin: 0;
+    font-size: 1rem;
+
+    @media screen and (min-width: 720px) {
+      font-size: revert;
+    }
+  }
 }
+
+.gp-recipe-picker {
+  &__title {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+
+    @media screen and (min-width: 720px) {
+      font-size: revert;
+    }
+  }
+}
+
 .gp-back-link {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
 }
 .gp-card {
   margin-bottom: 1rem;
@@ -214,7 +256,6 @@ startStream(searchParams)
 }
 .gp-content {
   padding: 1rem;
-
   display: grid;
 }
 
@@ -259,7 +300,8 @@ startStream(searchParams)
 
 .gp-faction {
   &__icon {
-    height: 1.7rem;
+    height: 2.7rem;
+    margin: 0 0.5rem 0.5rem 0;
   }
 
   &--alliance {

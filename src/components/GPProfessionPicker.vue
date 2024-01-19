@@ -46,6 +46,11 @@ function updateActiveProfession(prof: string) {
 
   &__title {
     margin-bottom: 0.5rem;
+    font-size: 1rem;
+
+    @media screen and (min-width: 720px) {
+      font-size: revert;
+    }
   }
 
   &__action {

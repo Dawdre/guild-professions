@@ -151,7 +151,11 @@ const findCrafterTier = computed(() => {
 
     &--recipe {
       flex-wrap: nowrap;
-      align-items: center;
+      align-items: flex-start;
+
+      @media screen and (min-width: 480px) {
+        align-items: center;
+      }
 
       @media screen and (min-width: 720px) {
         flex-flow: wrap;
