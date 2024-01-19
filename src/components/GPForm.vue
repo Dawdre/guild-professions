@@ -84,7 +84,7 @@ async function submit() {
   &__action {
     width: 100%;
 
-    @media screen and (min-width: 640px) {
+    @media screen and (min-width: 720px) {
       width: initial;
     }
   }

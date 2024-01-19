@@ -8,12 +8,11 @@ import {
   getGuildRecipesUnique,
   getGuildCrafters,
   getGuildInfo,
+  getRecipeDetails,
   type Recipe,
   type UniqueRecipe,
   type GuildCrafters,
-  type GuildInfo,
-  getRecipeDetails,
-  type RecipeDetails
+  type GuildInfo
 } from '@/api/api'
 import { useEventSource } from '@/composable/useEventSource'
 import { useStringUtils } from '@/composable/useString'
@@ -209,7 +208,7 @@ startStream(searchParams)
 .gp-card {
   margin-bottom: 1rem;
 
-  @media screen and (min-width: 640px) {
+  @media screen and (min-width: 720px) {
     width: 75vw;
   }
 }
@@ -245,14 +244,14 @@ startStream(searchParams)
     color: var(--n-text-color);
   }
 
-  @media screen and (min-width: 640px) {
+  @media screen and (min-width: 720px) {
     font-size: 1.7rem;
   }
 
   &-upper {
     font-size: 1.7rem;
 
-    @media screen and (min-width: 640px) {
+    @media screen and (min-width: 720px) {
       font-size: 2rem;
     }
   }

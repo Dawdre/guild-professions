@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { NCard, NSkeleton, NCollapse, NCollapseItem } from 'naive-ui'
+import { computed } from 'vue'
+import { NCard, NSkeleton } from 'naive-ui'
 import { type GuildCrafters, type Recipe, type RecipeDetails } from '@/api/api'
 import { useStringUtils } from '@/composable/useString'
-import { useElementVisibility } from '@vueuse/core'
 
 const { capitaliseFirstLetter } = useStringUtils()
 
@@ -12,9 +11,6 @@ const props = defineProps<{
   guildCrafters: GuildCrafters
   recipeDetails: RecipeDetails
 }>()
-
-const charName = ref(null)
-const charNameVisible = useElementVisibility(charName)
 
 const findCrafterInfo = computed(() => {
   return props.guildCrafters.crafters.find(
@@ -52,16 +48,19 @@ const findCrafterTier = computed(() => {
         </div>
       </div>
       <div class="gp-recipe__content-info">
-        <div class="gp-recipe__data-items">
+        <div class="gp-recipe__data-items gp-recipe__data-items--recipe">
           <img
             v-if="props.recipeDetails.iconURL"
+            class="gp-recipe__content-img"
             :src="props.recipeDetails?.iconURL"
             :alt="props.recipeDetails?.name"
           />
           <n-skeleton v-else :sharp="false" :height="56" :width="56" />
           <div class="gp-recipe__data-item">
             <div class="gp-recipe__data-item-title">{{ findCrafterTier }}</div>
-            <div class="gp-recipe__data-item-value">{{ props.filteredRecipe.recip_name }}</div>
+            <div class="gp-recipe__data-item-value gp-recipe__data-item-value--recipe">
+              {{ props.filteredRecipe.recip_name }}
+            </div>
           </div>
         </div>
       </div>
@@ -74,16 +73,28 @@ const findCrafterTier = computed(() => {
   margin-bottom: 1rem;
   text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
 
-  @media screen and (min-width: 640px) {
+  @media screen and (min-width: 720px) {
     width: 75vw;
   }
 
   &__header {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
 
     &-img {
-      display: flex;
+      img {
+        height: 60px;
+        border-radius: 3px;
+
+        @media screen and (min-width: 720px) {
+          height: auto;
+        }
+      }
+
+      @media screen and (min-width: 720px) {
+        display: flex;
+      }
     }
 
     &-content {
@@ -92,8 +103,12 @@ const findCrafterTier = computed(() => {
       justify-content: center;
 
       &-title {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         line-height: 1;
+
+        @media screen and (min-width: 720px) {
+          font-size: 1.5rem;
+        }
       }
     }
   }
@@ -107,9 +122,24 @@ const findCrafterTier = computed(() => {
     align-items: center;
     justify-content: space-between;
 
+    &-img {
+      border-radius: 3px;
+      order: 1;
+
+      @media screen and (min-width: 720px) {
+        display: flex;
+        order: 0;
+      }
+    }
+
     &-info {
       font-size: 1.5rem;
-      margin-right: 1rem;
+      margin-right: 0.5rem;
+      text-align: right;
+
+      @media screen and (min-width: 720px) {
+        text-align: left;
+      }
     }
   }
 
@@ -118,6 +148,23 @@ const findCrafterTier = computed(() => {
     flex-flow: wrap;
     align-items: flex-end;
     gap: 0.5rem;
+
+    &--recipe {
+      flex-wrap: nowrap;
+      align-items: center;
+
+      @media screen and (min-width: 720px) {
+        flex-flow: wrap;
+      }
+
+      .gp-recipe__data-item-value {
+        font-size: 0.9rem;
+
+        @media screen and (min-width: 720px) {
+          font-size: 1.2rem;
+        }
+      }
+    }
   }
 
   &__data-item {
@@ -141,14 +188,6 @@ const findCrafterTier = computed(() => {
         font-size: initial;
       }
     }
-  }
-
-  &__content-img {
-    img {
-      border-radius: 3px;
-      margin-bottom: -0.5rem;
-    }
-    margin-right: 1rem;
   }
 }
 </style>

@@ -100,14 +100,14 @@ async function submitForm(errors: FormValidationError) {
   margin-bottom: 0;
   font-size: 1.2rem;
 
-  @media screen and (min-width: 640px) {
+  @media screen and (min-width: 720px) {
     font-size: 1.7rem;
   }
 
   &-upper {
     font-size: 1.7rem;
 
-    @media screen and (min-width: 640px) {
+    @media screen and (min-width: 720px) {
       font-size: 2rem;
     }
   }
@@ -116,7 +116,7 @@ async function submitForm(errors: FormValidationError) {
 .gp-card {
   margin-bottom: 1rem;
 
-  @media screen and (min-width: 640px) {
+  @media screen and (min-width: 720px) {
     width: 75vw;
   }
 }

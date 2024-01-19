@@ -2,7 +2,6 @@ import { getGuildRecipesUnique, type Crafter, getGuildRecipes, getGuildCrafters 
 import { computed, ref } from 'vue';
 
 export function useProfessions() {
-  const professions = ref<string[]>(['Doctor', 'Engineer', 'Teacher']);
   const crafters = ref<Array<Crafter>>();
 
   const findCrafterInfo = (name: string) => computed(() => {
