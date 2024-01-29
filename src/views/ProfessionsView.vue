@@ -20,7 +20,7 @@ import { useAsyncState } from '@vueuse/core'
 import GPRecipe from '@/components/GPRecipe.vue'
 import GPProgressBar from '@/components/GPProgressBar.vue'
 import GPProfessionPicker from '@/components/GPProfessionPicker.vue'
-import GPRecipePicker from '@components/GPRecipePicker.vue'
+import GPRecipePicker from '@/components/GPRecipePicker.vue'
 
 const { sentenceCase } = useStringUtils()
 
