@@ -10,7 +10,9 @@ const formValue = ref({
   guildName: ''
 })
 
-const formatGuildName = computed(() => formValue.value.guildName.replace(/ /g, '-').toLowerCase())
+const formatGuildName = computed(() =>
+  formValue.value.guildName.replace(/ /g, '-').toLowerCase().trim()
+)
 
 const {
   startStream,

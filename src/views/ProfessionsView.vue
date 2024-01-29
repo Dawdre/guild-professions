@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { NSelect, NH1, NH2, NH3, NCard, NButton, NSkeleton } from 'naive-ui'
+import { NH1, NH2, NCard, NButton, NSkeleton } from 'naive-ui'
 
 import {
   getGuildRecipes,
@@ -16,12 +16,13 @@ import {
 } from '@/api/api'
 import { useEventSource } from '@/composable/useEventSource'
 import { useStringUtils } from '@/composable/useString'
+import { useAsyncState } from '@vueuse/core'
 import GPRecipe from '@/components/GPRecipe.vue'
 import GPProgressBar from '@/components/GPProgressBar.vue'
 import GPProfessionPicker from '@/components/GPProfessionPicker.vue'
-import { useAsyncState } from '@vueuse/core'
+import GPRecipePicker from '@components/GPRecipePicker.vue'
 
-const { capitaliseFirstLetter, sentenceCase } = useStringUtils()
+const { sentenceCase } = useStringUtils()
 
 const route = useRoute()
 const guildName = Array.isArray(route.params.guild) ? route.params.guild[0] : route.params.guild
@@ -36,16 +37,6 @@ guildInfo.value = await getGuildInfo(realm, guildName)
 const selectedValue = ref<string | undefined>(undefined)
 const activeProfession = ref('')
 const filteredRecipes = ref<Array<Recipe>>()
-
-const recipeOptions = computed(() => {
-  return uniqueRecipes.value
-    ?.map((recipe) => ({
-      label: recipe.recip_name,
-      value: recipe.recip_name,
-      prof_name: recipe.prof_name
-    }))
-    .filter((option) => option.prof_name === activeProfession.value)
-})
 
 const baseProfessions = computed(() => {
   const profs = allRecipes.value?.map((recipe) => recipe.prof_name)
@@ -121,7 +112,7 @@ startStream(searchParams)
   <main class="gp-content">
     <router-link :to="{ name: 'home' }" @click="closeEventSource">
       <n-button quaternary type="default" class="gp-back-link">
-        <span style="transform: rotate(-90deg); margin-right: 0.2rem">▲</span> Select another Guild
+        <span class="gp-back-link__arrow">▲</span> Select another Guild
       </n-button>
     </router-link>
     <n-card class="gp-card" size="small">
@@ -169,23 +160,12 @@ startStream(searchParams)
     </n-card>
 
     <n-card v-if="activeProfession" class="gp-card" size="small">
-      <div class="gp-recipe-picker">
-        <n-h3 class="gp-recipe-picker__title">
-          <label for="recipe-select" class="gp-recipe-picker__label">
-            Find a {{ capitaliseFirstLetter(activeProfession).value }} recipe
-          </label>
-        </n-h3>
-        <n-select
-          v-model:value="selectedValue"
-          id="recipe-select"
-          filterable
-          clearable
-          :options="recipeOptions"
-          placeholder="Select or search for a recipe"
-          size="large"
-          @update:value="pickRecipe"
-        />
-      </div>
+      <g-p-recipe-picker
+        v-model="selectedValue"
+        :unique-recipes="uniqueRecipes"
+        :active-profession="activeProfession"
+        @pick-recipe="pickRecipe"
+      />
     </n-card>
 
     <template v-if="selectedValue">
@@ -232,20 +212,14 @@ startStream(searchParams)
   }
 }
 
-.gp-recipe-picker {
-  &__title {
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-
-    @media screen and (min-width: 720px) {
-      font-size: revert;
-    }
-  }
-}
-
 .gp-back-link {
   margin-bottom: 0.5rem;
   padding: 0 0.5rem;
+
+  &__arrow {
+    transform: rotate(-90deg);
+    margin-right: 0.2rem;
+  }
 }
 .gp-card {
   margin-bottom: 1rem;
